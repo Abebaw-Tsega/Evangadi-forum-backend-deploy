@@ -1,46 +1,53 @@
 const express = require("express");
 const app = express();
-const port = 5555;
+
+// Use the PORT environment variable provided by Render
+const port = process.env.PORT || 5555; // Fallback to 5555 for local development
 require('dotenv').config();
 
+// DB connection
+const dbConnection = require("./db/dbConfig");
 
-//db connection
-const dbConnection = require("./db/dbConfig")
-
-//user routes middleware file
+// User routes middleware file
 const userRoutes = require("./routes/userRoute");
 
-//question routes middleware file
+// Question routes middleware file
 const questionRoutes = require("./routes/questionRoute");
-const { authMiddleware } = require("./Middleware/authMiddleware")
+const { authMiddleware } = require("./Middleware/authMiddleware");
 
-//answer routes middleware file
+// Answer routes middleware file
 const answerRoutes = require("./routes/answerRoute");
 
-//json middleware
-app.use(express.json())
+// JSON middleware
+app.use(express.json());
 
-//cors middleware
-const cors = require("cors")
-app.use(cors())
-//user routes middleware
-app.use("/api/users", userRoutes)
+// CORS middleware
+const cors = require("cors");
+app.use(cors());
 
+// User routes middleware
+app.use("/api/users", userRoutes);
 
-//question routes middleware...
-app.use("/api/questions", authMiddleware, questionRoutes)
+// Question routes middleware
+app.use("/api/questions", authMiddleware, questionRoutes);
 
-//answer routes middleware...
+// Answer routes middleware
 app.use("/api/answer", authMiddleware, answerRoutes);
 
 async function start() {
   try {
-    const result = await dbConnection.execute("select 'test' ")
-    await app.listen(port)
-    console.log("database successfully connected")
-    console.log(`listening on ${port}`)
+    // Start the server first
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+
+    // Then try to connect to the database
+    const result = await dbConnection.execute("select 'test'");
+    console.log("Database successfully connected");
   } catch (error) {
-    console.log(error.message)
+    console.error("Error connecting to the database:", error.message);
+    // Server is already running, so no need to stop
   }
 }
-start()
+
+start();

@@ -34,6 +34,11 @@ app.use("/api/questions", authMiddleware, questionRoutes);
 // Answer routes middleware
 app.use("/api/answer", authMiddleware, answerRoutes);
 
+// Add a root route for testing
+app.get('/', (req, res) => {
+  res.send("Welcome to Evangadi Forum API!");
+});
+
 async function start() {
   try {
     // Start the server first
